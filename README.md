@@ -1,2 +1,2 @@
 # Vue Firebase Chat
-**UNFINNISHED**: Firebase Backend Implementation
+**UNFINISHED**: Firebase Backend Implementation
