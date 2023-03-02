@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300&family=Tilt+Neon&display=swap');
+
+* {
+  color: white;
+  font-family: 'Tilt Neon', cursive;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #141414;
+  height: 95vh;
+  padding: 0;
+  margin: 0;
+}
