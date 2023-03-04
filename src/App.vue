@@ -7,6 +7,7 @@ import {
   getAuth,
   signInWithPopup,
   GithubAuthProvider,
+  GoogleAuthProvider,
   signOut,
 } from 'firebase/auth';
 import {
@@ -56,17 +57,31 @@ const isAuth = ref(false);
 const username = ref('???');
 const authToggle = ref(() => {
   if (isAuth.value) {
-    isAuth.value = false;
-    signOut(auth);
+    signOut(auth).then(() => isAuth.value = false);
   } else {
+    let method = prompt(`
+      Select A Sign In Method:
+        1. Github
+        2. Google
+      Example: 1
+    `);
+    let provider;
+    if (method == 1) {
+      provider = new GithubAuthProvider();
+    } else if (method == 2) {
+      provider = new GoogleAuthProvider();
+    } else {
+      alert('Invalid');
+      return;
+    }
+    signInWithPopup(auth, provider);
     isAuth.value = true;
-    signInWithPopup(auth, new GithubAuthProvider());
   }
 });
 
 auth.onAuthStateChanged(user => {
   if (user) {
-    username.value = user.reloadUserInfo.screenName;
+    username.value = user.reloadUserInfo.screenName || user.displayName;
     isAuth.value = true;
   } else {
     username.value = '???';
@@ -164,6 +179,9 @@ a { text-decoration: none; }
   gap: 1em;
 }
 #topbar { top: 1em; background: #000000a2; }
+#topbar h1 {
+  font-size: 5vw;
+}
 
 #inputs { bottom: 1em; }
 #inputs button { width: 5em; }
