@@ -2,8 +2,36 @@
 import { createApp, h, ref } from 'vue';
 import Mess from './components/Mess.vue';
 import swears from './swears.json';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithPopup,
+  GithubAuthProvider,
+  signOut,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  getDocs,
+  addDoc,
+  onSnapshot,
+  collection,
+  orderBy,
+  query,
+  limit,
+} from "firebase/firestore";
 
-// TODO: Firebase Realtime Database
+initializeApp({
+  apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
+  authDomain: "vf-chat-x.firebaseapp.com",
+  projectId: "vf-chat-x",
+  storageBucket: "vf-chat-x.appspot.com",
+  messagingSenderId: "81255262067",
+  appId: "1:81255262067:web:05a65355ac8bfd641bc706"
+});
+
+const db = getFirestore();
+const msgRefs = collection(db, "messages");
+const auth = getAuth();
 
 let bannedWords = swears.concat('http', 'www', 'com');
 document.querySelector('title').innerText = 'Vue Firebase Chat';
@@ -24,21 +52,49 @@ function msgComponentCreate(msg, user, system) {
   document.querySelector('#messages').appendChild(wrapper);
 }
 
-const isAuth = ref(true);
+const isAuth = ref(false);
 const username = ref('???');
 const authToggle = ref(() => {
   if (isAuth.value) {
     isAuth.value = false;
+    signOut(auth);
   } else {
     isAuth.value = true;
+    signInWithPopup(auth, new GithubAuthProvider());
   }
 });
 
+auth.onAuthStateChanged(user => {
+  if (user) {
+    username.value = user.reloadUserInfo.screenName;
+    isAuth.value = true;
+  } else {
+    username.value = '???';
+    isAuth.value = false;
+  }
+});
+
+const updateMsg = snapshot => {
+  document.querySelector('#messages').innerHTML = '';
+  snapshot.forEach((doc) => {
+    msgComponentCreate(
+      doc.data().msg, 
+      doc.data().author === username.value 
+        ? 'You' 
+        : doc.data().author, 
+      doc.data().author === 'SX-9'
+    );
+  });
+}
+const msgQ = query(msgRefs, limit(10), orderBy('created', 'asc'));
+onSnapshot(msgQ, updateMsg);
+getDocs(msgQ, updateMsg);
+
 let timeout = false;
 const msgCreate = ref(() => {
-  if (timeout) return alert('Slowdown, Theres a 3 Second Timeout!');
+  if (timeout) return alert('Slowdown, Theres a 5 Second Timeout!');
   timeout = true;
-  setTimeout(() => timeout = false, 3000);
+  setTimeout(() => timeout = false, 5000);
 
   let message = document.querySelector('#msg-input').value;
   if (message.length === 0) return alert('Enter A Message');
@@ -49,9 +105,16 @@ const msgCreate = ref(() => {
     if (stop) return;
     if (message.toLowerCase().includes(banned.toLowerCase())) stop = true;
   });
-  if (stop) return alert('Swear Word Detected!');
+  if (stop) return alert('Banned Word Detected!');
   
+  addDoc(msgRefs, {
+    msg: message,
+    author: username.value,
+    created: Date.now(),
+  });
+
   msgComponentCreate(message, username.value, false);
+  message = '';
 });
 
 window.onkeypress = e => {
@@ -73,7 +136,7 @@ window.addEventListener('DOMContentLoaded', () => msgComponentCreate('Sign In To
 </div>
 <div id="messages"></div>
 <p id="end">The End!</p>
-<div id="inputs">
+<div id="inputs" v-if="isAuth">
   <button><a href="#end">👇</a></button>
   <input id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
   <button @click="msgCreate">✈️</button>

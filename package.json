@@ -12,6 +12,7 @@
     "@firebase/app": "^0.9.3",
     "@firebase/database": "^0.14.3",
     "badwords-list": "^1.0.0",
+    "firebase": "^9.17.2",
     "vue": "^3.2.47"
   },
   "devDependencies": {
