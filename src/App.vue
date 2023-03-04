@@ -76,7 +76,7 @@ auth.onAuthStateChanged(user => {
 
 const updateMsg = snapshot => {
   document.querySelector('#messages').innerHTML = '';
-  snapshot.forEach((doc) => {
+  snapshot.forEach(doc => {
     msgComponentCreate(
       doc.data().msg, 
       doc.data().author === username.value 
@@ -86,9 +86,8 @@ const updateMsg = snapshot => {
     );
   });
 }
-const msgQ = query(msgRefs, limit(10), orderBy('created', 'asc'));
+const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(10));
 onSnapshot(msgQ, updateMsg);
-getDocs(msgQ, updateMsg);
 
 let timeout = false;
 const msgCreate = ref(() => {
