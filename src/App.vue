@@ -146,7 +146,7 @@ window.addEventListener('DOMContentLoaded', () => msgComponentCreate('Sign In To
     <span v-if="isAuth">Log Out</span>
     <span v-else>Log In</span>
   </button>
-  <h1 v-if="isAuth">{{ username }}</h1>
+  <h1 v-if="isAuth" id="username">{{ username }}</h1>
 </div>
 <div id="messages"></div>
 <p id="end">The End!</p>
@@ -179,8 +179,19 @@ a { text-decoration: none; }
   gap: 1em;
 }
 #topbar { top: 1em; background: #000000a2; }
-#topbar h1 {
-  font-size: 5vw;
+#topbar h1#username {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  max-width: 30%;
+}
+#topbar h1#username::-webkit-scrollbar {
+  height: .1em;
+  background-color: white;
+  border-radius: 5em;
+}
+#topbar h1#username::-webkit-scrollbar-thumb {
+  background-color: grey;
 }
 
 #inputs { bottom: 1em; }
