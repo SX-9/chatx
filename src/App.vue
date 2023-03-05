@@ -5,7 +5,7 @@ import swears from './swears.json';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
-  signInWithPopup,
+  signInWithRedirect,
   GithubAuthProvider,
   GoogleAuthProvider,
   signOut,
@@ -74,7 +74,7 @@ const authToggle = ref(() => {
       alert('Invalid');
       return;
     }
-    signInWithPopup(auth, provider);
+    signInWithRedirect(auth, provider);
     isAuth.value = true;
   }
 });
