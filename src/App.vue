@@ -41,10 +41,10 @@ function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
 }
 
-function msgComponentCreate(msg, user, system) {
+function msgComponentCreate(msg, user, system, time) {
   let msgComponent = createApp({ 
     setup () {
-      return () => h(Mess, {msg, user, system});
+      return () => h(Mess, {msg, user, system, time});
     }
   });
 
@@ -97,11 +97,12 @@ const updateMsg = snapshot => {
       doc.data().author === username.value 
         ? 'You' 
         : doc.data().author, 
-      doc.data().author === 'SX-9'
+      false,
+      doc.data().created
     );
   });
 }
-const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(10));
+const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(25));
 onSnapshot(msgQ, updateMsg);
 
 let timeout = false;
@@ -136,7 +137,7 @@ window.onkeypress = e => {
     msgCreate.value();
   }
 }
-window.addEventListener('DOMContentLoaded', () => msgComponentCreate('Sign In To Chat!', 'Warning', true));
+window.addEventListener('DOMContentLoaded', () => msgComponentCreate('Sign In To Chat!', 'Warning', true, 0));
 </script>
 
 <template>
