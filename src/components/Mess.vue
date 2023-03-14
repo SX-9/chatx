@@ -47,7 +47,7 @@ const rm = ref(() => {
     <h2 class="title">
       {{ user }}
       <span class="time"
-        >{{ new Date(time).getDate() }}/{{ new Date(time).getMonth() }}/{{
+        >{{ new Date(time).getMonth() }}/{{ new Date(time).getDate() }}/{{
           new Date(time).getFullYear()
         }}</span
       >
