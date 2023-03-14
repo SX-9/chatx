@@ -105,7 +105,7 @@ const updateMsg = snapshot => {
     );
   });
 }
-const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(25));
+const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(15));
 onSnapshot(msgQ, updateMsg);
 
 let timeout = false;

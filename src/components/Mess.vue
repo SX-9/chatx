@@ -48,7 +48,7 @@ const rm = ref(() => {
       {{ user }}
       <span class="time"
         >{{ new Date(time).getDate() }}/{{ new Date(time).getMonth() }}/{{
-          new Date(time).getYear()
+          new Date(time).getFullYear()
         }}</span
       >
     </h2>
