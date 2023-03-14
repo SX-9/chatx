@@ -12,7 +12,6 @@ import {
 } from 'firebase/auth';
 import {
   getFirestore,
-  getDocs,
   addDoc,
   onSnapshot,
   collection,
@@ -35,16 +34,16 @@ const msgRefs = collection(db, "messages");
 const auth = getAuth();
 
 let bannedWords = swears.concat('http', 'www', 'com');
-document.querySelector('title').innerText = 'Vue Firebase Chat';
+document.querySelector('title').innerText = 'ChatX Lobby';
 
 function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
 }
 
-function msgComponentCreate(msg, user, system, time) {
+function msgComponentCreate(msg, user, system, time, doc) {
   let msgComponent = createApp({ 
     setup () {
-      return () => h(Mess, {msg, user, system, time});
+      return () => h(Mess, {msg, user, system, time, doc, db});
     }
   });
 
@@ -55,6 +54,7 @@ function msgComponentCreate(msg, user, system, time) {
 
 const isAuth = ref(false);
 const username = ref('???');
+const uid = ref('???');
 const authToggle = ref(() => {
   if (isAuth.value) {
     signOut(auth).then(() => isAuth.value = false);
@@ -83,9 +83,11 @@ auth.onAuthStateChanged(user => {
   if (user) {
     username.value = user.reloadUserInfo.screenName || user.displayName;
     isAuth.value = true;
+    uid.value = user.uid;
   } else {
     username.value = '???';
     isAuth.value = false;
+    uid.value = '???';
   }
 });
 
@@ -97,8 +99,9 @@ const updateMsg = snapshot => {
       doc.data().author === username.value 
         ? 'You' 
         : doc.data().author, 
-      false,
-      doc.data().created
+      uid.value === "BRzxfCztjaQN6J2CKgYdp62ggnF2",
+      doc.data().created,
+      doc.id
     );
   });
 }
@@ -129,7 +132,7 @@ const msgCreate = ref(() => {
   });
 
   msgComponentCreate(message, username.value, false);
-  message = '';
+  document.querySelector('#msg-input').value = '';
 });
 
 window.onkeypress = e => {
@@ -137,12 +140,11 @@ window.onkeypress = e => {
     msgCreate.value();
   }
 }
-window.addEventListener('DOMContentLoaded', () => msgComponentCreate('Sign In To Chat!', 'Warning', true, 0));
 </script>
 
 <template>
 <div id="topbar">
-  <h1><a href="https://github.com/SX-9/vf-chat">VF-Chat</a></h1>
+  <h1><a href="https://github.com/SX-9/vf-chat">ChatX</a></h1>
   <button @click="authToggle">
     <span v-if="isAuth">Log Out</span>
     <span v-else>Log In</span>
