@@ -106,7 +106,7 @@ const updateMsg = snapshot => {
     );
   });
 }
-const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(15));
+const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(20));
 onSnapshot(msgQ, updateMsg);
 
 let timeout = false;
@@ -172,7 +172,7 @@ window.onkeypress = e => {
   <h1 v-if="isAuth" id="username">{{ username }}</h1>
 </div>
 <div id="messages"></div>
-<p id="end">The End!</p>
+<p id="end">Chat Is Limited To 20 Messages</p>
 <div id="inputs" v-if="isAuth">
   <button @click="imgCreate">📷</button>
   <input id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
