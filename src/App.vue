@@ -40,10 +40,10 @@ function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
 }
 
-function msgComponentCreate(msg, user, system, time, doc) {
+function msgComponentCreate(msg, user, system, time, doc, img) {
   let msgComponent = createApp({ 
     setup () {
-      return () => h(Mess, {msg, user, system, time, doc, db});
+      return () => h(Mess, {msg, user, system, time, doc, img});
     }
   });
 
@@ -101,7 +101,8 @@ const updateMsg = snapshot => {
         : doc.data().author, 
       uid.value === "BRzxfCztjaQN6J2CKgYdp62ggnF2",
       doc.data().created,
-      doc.id
+      doc.id,
+      doc.data().img,
     );
   });
 }
@@ -129,9 +130,28 @@ const msgCreate = ref(() => {
     msg: message,
     author: username.value,
     created: Date.now(),
+    img: '',
   });
 
-  msgComponentCreate(message, username.value, false);
+  document.querySelector('#msg-input').value = '';
+});
+const imgCreate = ref(() => {
+  if (timeout) return alert('Slowdown, Theres a 5 Second Timeout!');
+  timeout = true;
+  setTimeout(() => timeout = false, 5000);
+
+  let imgUrl = prompt('Image Url:', 'https://static3.makeuseofimages.com/wordpress/wp-content/uploads/2010/10/HTML-Code-Examples-Featured.jpg');
+  if (imgUrl.length === 0) return alert('Enter An Image Url');
+  if (!isASCII(imgUrl, true)) return alert('Image Url Contains Non ASCII Characters');
+  if (!imgUrl.startsWith('http')) return alert('Invalid Image Url');
+
+  addDoc(msgRefs, {
+    msg: '',
+    author: username.value,
+    created: Date.now(),
+    img: imgUrl,
+  });
+
   document.querySelector('#msg-input').value = '';
 });
 
@@ -154,7 +174,7 @@ window.onkeypress = e => {
 <div id="messages"></div>
 <p id="end">The End!</p>
 <div id="inputs" v-if="isAuth">
-  <button><a href="#end">👇</a></button>
+  <button @click="imgCreate">📷</button>
   <input id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
   <button @click="msgCreate">✈️</button>
 </div>

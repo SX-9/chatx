@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { getFirestore, updateDoc, deleteDoc, collection, doc as docId, } from "firebase/firestore";
 const props = defineProps({
-  db: Object,
+  img: String,
   msg: String,
   doc: String,
   user: String,
@@ -52,13 +52,14 @@ const rm = ref(() => {
         }}</span
       >
     </h2>
-    <p class="msg">
-      {{ msg }} <br />
-      <span v-if="system">
-        <a id="edit" @click="edit()">Edit</a>
-        /
-        <a id="rm" @click="rm()">Delete</a>
-      </span>
+    <p class="msg" v-if="msg">
+      {{ msg }} <br>
+    </p>
+    <img class="img" v-if="img" :src="img" alt="Photo Message" loading="lazy">
+    <p v-if="system" class="controls">
+      <a id="edit" @click="edit()">Edit</a>
+      /
+      <a id="rm" @click="rm()">Delete</a>
     </p>
   </div>
 </template>
@@ -69,7 +70,9 @@ const rm = ref(() => {
   margin: 1em;
   grid-template-areas:
     "shape title"
-    "shape msg";
+    "shape msg"
+    "shape img"
+    "actions actions";
   grid-template-columns: 1.5em 1fr;
 }
 
@@ -90,6 +93,17 @@ const rm = ref(() => {
 }
 .msg {
   grid-area: msg;
+}
+
+.img {
+  grid-area: img;
+  width: 95%;
+  border: .1em solid grey;
+  margin: .5em;
+}
+
+.controls {
+  grid-area: actions;
 }
 
 #edit { color: blue; }
