@@ -20,7 +20,7 @@ import {
   limit,
 } from "firebase/firestore";
 
-// TODO: Make Email Login
+// TODO: Make Twitter Login
 // TODO: Make API 
 
 initializeApp({
