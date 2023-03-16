@@ -20,6 +20,9 @@ import {
   limit,
 } from "firebase/firestore";
 
+// TODO: Make Email Login
+// TODO: Make API 
+
 initializeApp({
   apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
   authDomain: "vf-chat-x.firebaseapp.com",
@@ -32,6 +35,7 @@ initializeApp({
 const db = getFirestore();
 const msgRefs = collection(db, "messages");
 const auth = getAuth();
+const ownerUid = 'BRzxfCztjaQN6J2CKgYdp62ggnF2';
 
 let bannedWords = swears.concat('http', 'www', 'com');
 document.querySelector('title').innerText = 'ChatX Lobby';
@@ -99,7 +103,7 @@ const updateMsg = snapshot => {
       doc.data().author === username.value 
         ? 'You' 
         : doc.data().author, 
-      uid.value === "BRzxfCztjaQN6J2CKgYdp62ggnF2",
+      uid.value === ownerUid,
       doc.data().created,
       doc.id,
       doc.data().img,

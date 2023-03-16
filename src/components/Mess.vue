@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { getFirestore, updateDoc, deleteDoc, collection, doc as docId, } from "firebase/firestore";
+import Markdown from 'vue3-markdown-it';
 const props = defineProps({
   img: String,
   msg: String,
@@ -42,7 +43,7 @@ const rm = ref(() => {
 
 <template>
   <div class="container">
-    <div v-if="user === 'SX-9'" class="shape green">|</div>
+    <div v-if="user === 'SX-9'" class="shape owner">|</div>
     <div v-else class="shape">|</div>
     <h2 class="title">
       {{ user }}
@@ -52,9 +53,7 @@ const rm = ref(() => {
         }}</span
       >
     </h2>
-    <p class="msg" v-if="msg">
-      {{ msg }} <br>
-    </p>
+    <Markdown class="msg" v-if="msg" :source="msg"/>
     <img class="img" v-if="img" :src="img" alt="Photo Message" loading="lazy">
     <p v-if="system" class="controls">
       <a id="edit" @click="edit()">Edit</a>
@@ -81,7 +80,7 @@ const rm = ref(() => {
   font-size: 2.7em;
   color: grey;
 }
-.shape.green {
+.shape.owner {
   color: yellow;
 }
 .title {
@@ -98,6 +97,7 @@ const rm = ref(() => {
 .img {
   grid-area: img;
   width: 95%;
+  max-width: 40rem;
   border: .1em solid grey;
   margin: .5em;
 }
