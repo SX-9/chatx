@@ -179,7 +179,7 @@ window.onkeypress = e => {
 <p id="end" class="fadeLeft">Chat Is Limited To 20 Messages</p>
 <div id="inputs" v-if="isAuth" class="fadeBottom">
   <button @click="imgCreate">📷</button>
-  <input id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
+  <input autofocus id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
   <button @click="msgCreate">✈️</button>
 </div>
 </template>
