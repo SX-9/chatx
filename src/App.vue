@@ -8,7 +8,6 @@ import {
   signInWithRedirect,
   GithubAuthProvider,
   GoogleAuthProvider,
-  TwitterAuthProvider,
   signOut,
 } from 'firebase/auth';
 import {
@@ -67,7 +66,6 @@ const authToggle = ref(() => {
       Select A Sign In Method:
         1. Github
         2. Google
-        3. Twitter
       Example: 1
     `);
     let provider;
@@ -75,8 +73,6 @@ const authToggle = ref(() => {
       provider = new GithubAuthProvider();
     } else if (method == 2) {
       provider = new GoogleAuthProvider();
-    } else if (method == 3) {
-      provider = new TwitterAuthProvider();
     } else {
       alert('Invalid');
       return;
