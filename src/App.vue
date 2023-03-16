@@ -109,8 +109,7 @@ const updateMsg = snapshot => {
     );
   });
 }
-const msgQ = query(msgRefs, orderBy('created', 'desc'), limit(20));
-onSnapshot(msgQ, updateMsg);
+onSnapshot(query(msgRefs, orderBy('created', 'desc'), limit(20)), updateMsg);
 
 let timeout = false;
 const msgCreate = ref(() => {
@@ -166,7 +165,7 @@ window.onkeypress = e => {
 </script>
 
 <template>
-<div id="topbar">
+<div id="topbar" class="fadeTop">
   <h1><a href="https://github.com/SX-9/vf-chat">ChatX</a></h1>
   <button @click="authToggle">
     <span v-if="isAuth">Log Out</span>
@@ -174,9 +173,11 @@ window.onkeypress = e => {
   </button>
   <h1 v-if="isAuth" id="username">{{ username }}</h1>
 </div>
-<div id="messages"></div>
-<p id="end">Chat Is Limited To 20 Messages</p>
-<div id="inputs" v-if="isAuth">
+<div id="messages" class="fadeLeft">
+  <Mess msg="Loading Messages..." user="System" time="1" />
+</div>
+<p id="end" class="fadeLeft">Chat Is Limited To 20 Messages</p>
+<div id="inputs" v-if="isAuth" class="fadeBottom">
   <button @click="imgCreate">📷</button>
   <input id="msg-input" type="text" placeholder="Hello World, Type Here..."/>
   <button @click="msgCreate">✈️</button>
@@ -234,5 +235,24 @@ input, button {
   border-top-right-radius: .5em;
   border-bottom-left-radius: .5em;
   border-bottom-right-radius: .5em;
+}
+
+.fadeLeft { animation: fadeLeft 1s ease-out; }
+.fadeTop { animation: fadeTop 1s ease-out; }
+.fadeBottom { animation: fadeBottom 1s ease-out; }
+
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeTop {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeBottom {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateX(0); }
 }
 </style>

@@ -106,7 +106,8 @@ const rm = ref(() => {
   grid-area: actions;
 }
 
-#edit { color: cyan; }
-#rm { color: red; }
+#edit { color: lightblue; }
+#rm { color: pink; }
 #edit, #rm { cursor: pointer; }
+
 </style>
