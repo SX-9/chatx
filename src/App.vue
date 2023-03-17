@@ -22,7 +22,6 @@ import {
 
 // TODO: Make API
 // TODO: Typing Indicator
-// TODO: Client Themes
 
 initializeApp({
   apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
@@ -38,7 +37,6 @@ const msgRefs = collection(db, "messages");
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
 
-let bannedWords = swears.concat("http", "www", "com");
 document.querySelector("title").innerText = "ChatX Lobby";
 
 function isASCII(str, extended) {
@@ -144,7 +142,7 @@ const msgCreate = ref(() => {
       return alert("Message Contains Non ASCII Characters");
 
     let stop = false;
-    bannedWords.forEach((banned) => {
+    swears.forEach((banned) => {
       if (stop) return;
       if (message.toLowerCase().includes(banned.toLowerCase())) stop = true;
     });
