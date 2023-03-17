@@ -21,6 +21,9 @@ import {
 } from "firebase/firestore";
 
 // TODO: Make API
+// TODO: Onboarding
+// TODO: Client Themes
+// TODO: Typing Indicator
 
 initializeApp({
   apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
