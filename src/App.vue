@@ -209,6 +209,7 @@ const typingStart = ref(() => {
 </script>
 
 <template>
+  <div id="bg"></div>
   <div id="topbar" class="fadeTop">
     <h1><a href="https://github.com/SX-9/vf-chat">ChatX</a></h1>
     <button @click="authToggle">
@@ -304,6 +305,20 @@ a {
   width: 100%;
   background: #000000a2;
   padding: 0.5em;
+}
+
+#bg {
+  background: linear-gradient(
+    to top left,
+    #31112f70,
+    #00393b70
+  );
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 input,
