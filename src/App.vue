@@ -21,9 +21,8 @@ import {
 } from "firebase/firestore";
 
 // TODO: Make API
-// TODO: Onboarding
-// TODO: Client Themes
 // TODO: Typing Indicator
+// TODO: Client Themes
 
 initializeApp({
   apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
@@ -63,7 +62,7 @@ const username = ref("???");
 const uid = ref("???");
 const authToggle = ref(() => {
   if (isAuth.value) {
-    signOut(auth).then(() => (isAuth.value = false));
+    signOut(auth);
   } else {
     let method = prompt(`
       Select A Sign In Method:
@@ -81,7 +80,6 @@ const authToggle = ref(() => {
       return;
     }
     signInWithRedirect(auth, provider);
-    isAuth.value = true;
   }
 });
 
@@ -90,6 +88,26 @@ auth.onAuthStateChanged((user) => {
     username.value = user.reloadUserInfo.screenName || user.displayName;
     isAuth.value = true;
     uid.value = user.uid;
+    if (localStorage.getItem('new')) return;
+    alert(`
+      Welcome ${username.value}, Looks Like You Are New!
+
+      Here Are The Rules:
+      1. No Swearing
+      2. No Advertising
+      3. No Hacking
+      4. No NSFW
+      5. Use Common Sense
+
+      We Have A Ton Of Features:
+      1. Image Support
+      2. Markdown Support
+      3. Random Name Color
+      4. Color Themes (WIP)
+      5. Typing Indicators (WIP)
+      6. API (Soon)
+    `)
+    localStorage.setItem('new', 'true');
   } else {
     username.value = "???";
     isAuth.value = false;
