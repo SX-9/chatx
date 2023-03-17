@@ -13,15 +13,16 @@ import {
 import {
   getFirestore,
   addDoc,
+  updateDoc,
   onSnapshot,
   collection,
   orderBy,
   query,
   limit,
+  doc,
 } from "firebase/firestore";
 
 // TODO: Make API
-// TODO: Typing Indicator
 
 initializeApp({
   apiKey: "AIzaSyC17Jru5AC4145DIcoOa5W-cxTm7Phj0CY",
@@ -34,6 +35,7 @@ initializeApp({
 
 const db = getFirestore();
 const msgRefs = collection(db, "messages");
+const typingRef = doc(collection(db, "typing"), "active");
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
 
@@ -86,7 +88,7 @@ auth.onAuthStateChanged((user) => {
     username.value = user.reloadUserInfo.screenName || user.displayName;
     isAuth.value = true;
     uid.value = user.uid;
-    if (localStorage.getItem('new')) return;
+    if (localStorage.getItem("new")) return;
     alert(`
       Welcome ${username.value}, Looks Like You Are New!
 
@@ -104,8 +106,8 @@ auth.onAuthStateChanged((user) => {
       4. Color Themes (WIP)
       5. Typing Indicators (WIP)
       6. API (Soon)
-    `)
-    localStorage.setItem('new', 'true');
+    `);
+    localStorage.setItem("new", "true");
   } else {
     username.value = "???";
     isAuth.value = false;
@@ -178,6 +180,7 @@ const imgCreate = ref(() => {
     created: Date.now(),
     img: imgUrl,
   });
+  const typingStart = ref(() => {});
 
   document.querySelector("#msg-input").value = "";
 });
@@ -187,6 +190,22 @@ window.onkeypress = (e) => {
     msgCreate.value();
   }
 };
+
+const typing = ref(false);
+onSnapshot(typingRef, (t) => {
+  typing.value = t.data().active;
+});
+
+let typingTimeout;
+const typingStart = ref(() => {
+  updateDoc(typingRef, {
+    active: true,
+  });
+  if (typingTimeout != undefined) clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => updateDoc(typingRef, {
+      active: false,
+    }), 5000);
+});
 </script>
 
 <template>
@@ -198,6 +217,7 @@ window.onkeypress = (e) => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
+  <div v-if="typing" id="typing" class="fadeBottom">People Are Typing...</div>
   <div id="messages" class="fadeLeft">
     <Mess msg="Loading Messages..." user="System" time="1" />
   </div>
@@ -209,6 +229,7 @@ window.onkeypress = (e) => {
       id="msg-input"
       type="text"
       placeholder="Hello World, Type Here..."
+      @keypress="typingStart"
     />
     <button @click="msgCreate">✈️</button>
   </div>
@@ -247,6 +268,8 @@ a {
   gap: 1em;
 }
 #topbar {
+  padding-bottom: 0.3em;
+  padding-top: 0.3em;
   top: 1em;
   background: #000000a2;
 }
@@ -273,6 +296,14 @@ a {
 }
 #inputs input {
   width: 60%;
+}
+
+#typing {
+  position: fixed;
+  bottom: 4.5em;
+  width: 100%;
+  background: #000000a2;
+  padding: 0.5em;
 }
 
 input,
