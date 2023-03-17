@@ -97,14 +97,15 @@ auth.onAuthStateChanged((user) => {
       2. No Advertising
       3. No Hacking
       4. No NSFW
-      5. Use Common Sense
+      5. English Only
+      6. Use Common Sense
 
       We Have A Ton Of Features:
       1. Image Support
       2. Markdown Support
       3. Random Name Color
-      4. Color Themes (WIP)
-      5. Typing Indicators (WIP)
+      4. Typing Indicators
+      5. Admin UI
       6. API (Soon)
     `);
     localStorage.setItem("new", "true");
