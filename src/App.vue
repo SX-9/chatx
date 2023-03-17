@@ -217,7 +217,7 @@ const typingStart = ref(() => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
-  <div v-if="typing" id="typing" class="fadeBottom">People Are Typing...</div>
+  <div v-if="typing && isAuth" id="typing" class="fadeBottom">People Are Typing...</div>
   <div id="messages" class="fadeLeft">
     <Mess msg="Loading Messages..." user="System" time="1" />
   </div>
