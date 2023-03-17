@@ -197,14 +197,22 @@ onSnapshot(typingRef, (t) => {
 });
 
 let typingTimeout;
-const typingStart = ref(() => {
+const typingStart = ref((e) => {
+  if (e.key === "Enter")
+    return updateDoc(typingRef, {
+      active: false,
+    });
   updateDoc(typingRef, {
     active: true,
   });
   if (typingTimeout != undefined) clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => updateDoc(typingRef, {
-      active: false,
-    }), 5000);
+  typingTimeout = setTimeout(
+    () =>
+      updateDoc(typingRef, {
+        active: false,
+      }),
+    3000
+  );
 });
 </script>
 
@@ -218,7 +226,9 @@ const typingStart = ref(() => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
-  <div v-if="typing && isAuth" id="typing" class="fadeBottom">People Are Typing...</div>
+  <div v-if="typing && isAuth" id="typing" class="fadeBottom">
+    People Are Typing...
+  </div>
   <div id="messages" class="fadeLeft">
     <Mess msg="Loading Messages..." user="System" time="1" />
   </div>
@@ -230,7 +240,7 @@ const typingStart = ref(() => {
       id="msg-input"
       type="text"
       placeholder="Hello World, Type Here..."
-      @keypress="typingStart"
+      @keydown="typingStart"
     />
     <button @click="msgCreate">✈️</button>
   </div>
@@ -308,11 +318,7 @@ a {
 }
 
 #bg {
-  background: linear-gradient(
-    to top left,
-    #31112f70,
-    #00393b70
-  );
+  background: linear-gradient(to top left, #31112f70, #00393b70);
   position: fixed;
   top: 0;
   left: 0;
