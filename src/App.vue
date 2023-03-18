@@ -41,8 +41,6 @@ const typingRef = doc(collection(db, "typing"), "active");
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
 
-document.querySelector("title").innerText = "ChatX Lobby";
-
 function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
 }
@@ -253,7 +251,10 @@ const typingStart = ref((e) => {
     People Are Typing...
   </div>
   <div id="messages" class="fadeLeft"></div>
-  <p id="end" class="fadeLeft">Chat Is Limited To 15 Messages</p>
+  <p id="end" class="fadeLeft">
+    Chat Is Limited To 15 Messages<br>
+    Database Location: Asia/Jakarta<br>
+  </p>
   <div id="inputs" v-if="isAuth" class="fadeBottom">
     <button @click="imgCreate">📷</button>
     <input
