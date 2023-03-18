@@ -99,8 +99,9 @@ auth.onAuthStateChanged((user) => {
       2. Markdown Support
       3. Random Name Color
       4. Typing Indicators
-      5. Admin UI
-      6. API (Soon)
+      5. Message Likes
+      6. Admin Dashboard
+      7. API (Soon)
     `);
     localStorage.setItem("new", "true");
   } else {
