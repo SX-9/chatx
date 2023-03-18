@@ -1,7 +1,15 @@
 <script setup>
 import { ref } from "vue";
-import { getFirestore, updateDoc, deleteDoc, collection, doc as docId, } from "firebase/firestore";
-import Markdown from 'vue3-markdown-it';
+import {
+  getFirestore,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  setDoc,
+  collection,
+  doc as docId,
+} from "firebase/firestore";
+import Markdown from "vue3-markdown-it";
 const props = defineProps({
   img: String,
   msg: String,
@@ -11,33 +19,45 @@ const props = defineProps({
   system: Boolean,
 });
 
-function getRandomColor() {
-  var letters = "0123456789ABCDEF";
-  var color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
+const msgs = collection(getFirestore(), "messages");
+const likesRef = collection(getFirestore(), "likes");
+const likes = ref(0);
 
-document
-  .querySelectorAll(".title")
-  .forEach((el) => (el.style.color = getRandomColor()));
+getDoc(docId(likesRef, props.doc))
+  .then((d) => {
+    if (d.exists()) return (likes.value = d.data().likes);
+    setDoc(docId(likesRef, props.doc), {
+      likes: 0,
+    });
+    likes.value = 0;
+  })
+  .catch(console.error);
 
-const msgs = collection(getFirestore(), 'messages');
 const edit = ref(() => {
   let { msg, doc, user, time } = props;
-  let newMsg = prompt('Edit Message: ', msg);
+  let newMsg = prompt("Edit Message: ", msg);
   if (!newMsg) return;
-  
+
   updateDoc(docId(msgs, doc), {
-    msg: newMsg, author: user, created: time
+    msg: newMsg,
+    author: user,
+    created: time,
   });
 });
 const rm = ref(() => {
-    let { doc } = props;
-  let yn = confirm('Delete Message?');
-  if (yn) deleteDoc(docId(msgs, doc));
+  let { doc } = props;
+  let yn = confirm("Delete Message?");
+  if (yn) {
+    deleteDoc(docId(msgs, doc));
+    deleteDoc(docId(likesRef, doc));
+  }
+});
+const like = ref(() => {
+  let { doc } = props;
+  likes.value++;
+  updateDoc(docId(likesRef, doc), {
+    likes: likes.value,
+  });
 });
 </script>
 
@@ -53,12 +73,14 @@ const rm = ref(() => {
         }}</span
       >
     </h2>
-    <Markdown class="msg" v-if="msg" :source="msg"/>
-    <img class="img" v-if="img" :src="img" alt="Photo Message" loading="lazy">
-    <p v-if="system" class="controls">
-      <a id="edit" @click="edit()">Edit</a>
-      /
-      <a id="rm" @click="rm()">Delete</a>
+    <Markdown class="msg" v-if="msg" :source="msg" />
+    <img class="img" v-if="img" :src="img" alt="Photo Message" loading="lazy" />
+    <p class="controls">
+      <span v-if="system">
+        <a id="edit" @click="edit()">Edit</a>
+        <a id="rm" @click="rm()">Delete</a>
+      </span>
+      <a @click="like()" id="likes">👍 {{ new Intl.NumberFormat('en', { notation: 'compact' }).format(likes) || 0 }}</a>
     </p>
   </div>
 </template>
@@ -98,16 +120,25 @@ const rm = ref(() => {
   grid-area: img;
   width: 95%;
   max-width: 40rem;
-  border: .1em solid grey;
-  margin: .5em;
+  border: 0.1em solid grey;
+  margin: 0.5em;
 }
 
 .controls {
   grid-area: actions;
 }
 
-#edit { color: lightblue; }
-#rm { color: pink; }
-#edit, #rm { cursor: pointer; }
-
+#edit {
+  color: lightblue;
+}
+#rm {
+  color: pink;
+}
+#likes {
+  color: yellow;
+}
+a {
+  cursor: pointer;
+  margin: 0.5em;
+}
 </style>

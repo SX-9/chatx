@@ -35,7 +35,9 @@ initializeApp({
 
 const db = getFirestore();
 const msgRefs = collection(db, "messages");
+const likesRef = collection(db, 'likes')
 const typingRef = doc(collection(db, "typing"), "active");
+
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
 
@@ -92,14 +94,6 @@ auth.onAuthStateChanged((user) => {
     alert(`
       Welcome ${username.value}, Looks Like You Are New!
 
-      Here Are The Rules:
-      1. No Swearing
-      2. No Advertising
-      3. No Hacking
-      4. No NSFW
-      5. English Only
-      6. Use Common Sense
-
       We Have A Ton Of Features:
       1. Image Support
       2. Markdown Support
@@ -116,6 +110,15 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+function getRandomColor() {
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 const updateMsg = (snapshot) => {
   document.querySelector("#messages").innerHTML = "";
   snapshot.forEach((doc) => {
@@ -125,9 +128,12 @@ const updateMsg = (snapshot) => {
       uid.value === ownerUid,
       doc.data().created,
       doc.id,
-      doc.data().img
+      doc.data().img,
     );
   });
+  document
+    .querySelectorAll("h2")
+    .forEach((el) => (el.style.color = getRandomColor()));
 };
 onSnapshot(query(msgRefs, orderBy("created", "desc"), limit(15)), updateMsg);
 
@@ -158,30 +164,45 @@ const msgCreate = ref(() => {
     created: Date.now(),
     img: "",
   });
+  addDoc(likesRef, { likes: 1, });
 
   document.querySelector("#msg-input").value = "";
 });
 const imgCreate = ref(() => {
-  if (timeout) return alert("Slowdown, Theres a 5 Second Timeout!");
-  timeout = true;
-  setTimeout(() => (timeout = false), 5000);
-
+  let message = document.querySelector("#msg-input").value;
   let imgUrl = prompt(
     "Image Url:",
     "https://static3.makeuseofimages.com/wordpress/wp-content/uploads/2010/10/HTML-Code-Examples-Featured.jpg"
   );
-  if (imgUrl.length === 0) return alert("Enter An Image Url");
-  if (!isASCII(imgUrl, true))
-    return alert("Image Url Contains Non ASCII Characters");
-  if (!imgUrl.startsWith("http")) return alert("Invalid Image Url");
+
+  if (uid.value !== ownerUid) {
+    if (timeout) return alert("Slowdown, Theres a 5 Second Timeout!");
+    timeout = true;
+    setTimeout(() => (timeout = false), 5000);
+
+    if (!isASCII(message, true))
+      return alert("Message Contains Non ASCII Characters");
+
+    let stop = false;
+    swears.forEach((banned) => {
+      if (stop) return;
+      if (message.toLowerCase().includes(banned.toLowerCase())) stop = true;
+    });
+    if (stop) return alert("Banned Word Detected!");
+
+    if (imgUrl.length === 0) return alert("Enter An Image Url");
+    if (!isASCII(imgUrl, true))
+      return alert("Image Url Contains Non ASCII Characters");
+    if (!imgUrl.startsWith("http")) return alert("Invalid Image Url");
+  }
 
   addDoc(msgRefs, {
-    msg: "",
+    msg: message,
     author: username.value,
     created: Date.now(),
     img: imgUrl,
   });
-  const typingStart = ref(() => {});
+  addDoc(likesRef, { likes: 1, });
 
   document.querySelector("#msg-input").value = "";
 });
@@ -227,12 +248,10 @@ const typingStart = ref((e) => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
-  <div v-if="typing && isAuth" id="typing" class="fadeBottom">
+  <div v-if="typing && isAuth" id="typing" class="fadeBottom" doc="1">
     People Are Typing...
   </div>
-  <div id="messages" class="fadeLeft">
-    <Mess msg="Loading Messages..." user="System" time="1" />
-  </div>
+  <div id="messages" class="fadeLeft"></div>
   <p id="end" class="fadeLeft">Chat Is Limited To 15 Messages</p>
   <div id="inputs" v-if="isAuth" class="fadeBottom">
     <button @click="imgCreate">📷</button>
@@ -319,7 +338,7 @@ a {
 }
 
 #bg {
-  background: linear-gradient(to top left, #31112f70, #00393b70);
+  background: linear-gradient(to top left, #31112f, #00393b);
   position: fixed;
   top: 0;
   left: 0;
