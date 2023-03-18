@@ -77,8 +77,8 @@ const like = ref(() => {
     <img class="img" v-if="img" :src="img" alt="Photo Message" loading="lazy" />
     <p class="controls">
       <span v-if="system">
-        <a id="edit" @click="edit()">Edit</a>
-        <a id="rm" @click="rm()">Delete</a>
+        <a id="edit" @click="edit()">🖊 Edit</a>
+        <a id="rm" @click="rm()">🗑 Delete</a>
       </span>
       <a @click="like()" id="likes">👍 {{ new Intl.NumberFormat('en', { notation: 'compact' }).format(likes) || 0 }}</a>
     </p>
