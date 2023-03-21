@@ -8,7 +8,10 @@ import {
   signInWithRedirect,
   GithubAuthProvider,
   GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
+  updateProfile,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -21,6 +24,7 @@ import {
   limit,
   doc,
 } from "firebase/firestore";
+import { v5 as uuid } from "uuid";
 
 // TODO: Make API
 
@@ -35,11 +39,101 @@ initializeApp({
 
 const db = getFirestore();
 const msgRefs = collection(db, "messages");
-const likesRef = collection(db, 'likes')
+const likesRef = collection(db, "likes");
 const typingRef = doc(collection(db, "typing"), "active");
 
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
+const actionCodeSettings = {
+  url: "https://vf-chat-x.web.app",
+  dynamicLinkDomain: "vf-chat-x.web.app",
+};
+
+const isAuth = ref(false);
+const showForm = ref(false);
+const username = ref("???");
+const uid = ref("???");
+const authToggle = ref(() => {
+  if (isAuth.value) {
+    signOut(auth);
+  } else {
+    let method = prompt(`
+Select A Sign In Method:
+  1. Github
+  2. Google
+  3. Email
+Example: 1
+    `);
+    let provider;
+    if (method == 1) {
+      provider = new GithubAuthProvider();
+    } else if (method == 2) {
+      provider = new GoogleAuthProvider();
+    } else if (method == 3) {
+      showForm.value = true;
+      return;
+    } else {
+      alert("Invalid");
+      return;
+    }
+    signInWithRedirect(auth, provider);
+  }
+});
+const emailAuth = ref((e) => {
+  let email = document.querySelector('input[name=email]').value;
+  let pass = document.querySelector('input[name=pass]').value
+
+  e.preventDefault();
+  signInWithEmailAndPassword(auth, email, pass)
+    .then((userCredential) => {
+      const user = userCredential.user;
+    })
+    .catch((error) => {
+      if (error.code === 'auth/user-not-found') {
+        if (confirm('Account Not Found, Create A New One?')) {
+          createUserWithEmailAndPassword(auth, email, pass)
+            .then((user) => {
+              updateProfile(auth.currentUser, {
+                displayName: prompt('Username:') || uuid(),
+              }).catch(console.error);
+            });
+        }
+      }
+      console.error(`
+Error: ${error.code}
+
+${error.message}
+      `);
+    });
+  showForm.value = false;
+});
+
+auth.onAuthStateChanged((user) => {
+  console.log(user)
+  if (user) {
+    username.value = user.reloadUserInfo.screenName || user.displayName;
+    isAuth.value = true;
+    uid.value = user.uid;
+    if (localStorage.getItem("new")) return;
+    alert(`
+Welcome ${username.value}, Looks Like You Are New!
+
+We Have A Ton Of Features:
+1. Image Support
+2. Markdown Support
+3. Random Name Color
+4. Typing Indicators
+5. Message Likes
+6. Admin Dashboard
+7. API (Soon)
+    `);
+    localStorage.setItem("new", "true");
+  } else {
+    username.value = "???";
+    isAuth.value = false;
+    uid.value = "???";
+  }
+});
 
 function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
@@ -56,58 +150,6 @@ function msgComponentCreate(msg, user, system, time, doc, img) {
   msgComponent.mount(wrapper);
   document.querySelector("#messages").appendChild(wrapper);
 }
-
-const isAuth = ref(false);
-const username = ref("???");
-const uid = ref("???");
-const authToggle = ref(() => {
-  if (isAuth.value) {
-    signOut(auth);
-  } else {
-    let method = prompt(`
-      Select A Sign In Method:
-        1. Github
-        2. Google
-      Example: 1
-    `);
-    let provider;
-    if (method == 1) {
-      provider = new GithubAuthProvider();
-    } else if (method == 2) {
-      provider = new GoogleAuthProvider();
-    } else {
-      alert("Invalid");
-      return;
-    }
-    signInWithRedirect(auth, provider);
-  }
-});
-
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    username.value = user.reloadUserInfo.screenName || user.displayName;
-    isAuth.value = true;
-    uid.value = user.uid;
-    if (localStorage.getItem("new")) return;
-    alert(`
-      Welcome ${username.value}, Looks Like You Are New!
-
-      We Have A Ton Of Features:
-      1. Image Support
-      2. Markdown Support
-      3. Random Name Color
-      4. Typing Indicators
-      5. Message Likes
-      6. Admin Dashboard
-      7. API (Soon)
-    `);
-    localStorage.setItem("new", "true");
-  } else {
-    username.value = "???";
-    isAuth.value = false;
-    uid.value = "???";
-  }
-});
 
 function getRandomColor() {
   var letters = "0123456789ABCDEF";
@@ -127,7 +169,7 @@ const updateMsg = (snapshot) => {
       uid.value === ownerUid,
       doc.data().created,
       doc.id,
-      doc.data().img,
+      doc.data().img
     );
   });
   document
@@ -163,7 +205,7 @@ const msgCreate = ref(() => {
     created: Date.now(),
     img: "",
   });
-  addDoc(likesRef, { likes: 1, });
+  addDoc(likesRef, { likes: 1 });
 
   document.querySelector("#msg-input").value = "";
 });
@@ -201,7 +243,7 @@ const imgCreate = ref(() => {
     created: Date.now(),
     img: imgUrl,
   });
-  addDoc(likesRef, { likes: 1, });
+  addDoc(likesRef, { likes: 1 });
 
   document.querySelector("#msg-input").value = "";
 });
@@ -247,16 +289,14 @@ const typingStart = ref((e) => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
-  <div v-if="typing && isAuth" class="typing fadeTop">
-    People Are Typing...
-  </div>
+  <div v-if="typing && isAuth" class="typing fadeTop">People Are Typing...</div>
   <div v-if="typing && isAuth" class="typing fadeBottom">
     People Are Typing...
   </div>
   <div id="messages" class="fadeLeft"></div>
   <p id="end" class="fadeLeft">
-    Chat Is Limited To 15 Messages<br>
-    Database Location: Asia/Jakarta<br>
+    Chat Is Limited To 15 Messages<br />
+    Database Location: Asia/Jakarta<br />
   </p>
   <div id="inputs" v-if="isAuth" class="fadeBottom">
     <button @click="imgCreate">📷</button>
@@ -268,6 +308,17 @@ const typingStart = ref((e) => {
       @keydown="typingStart"
     />
     <button @click="msgCreate">✈️</button>
+  </div>
+  <div v-if="showForm && !isAuth" class="fadeBottom" id="form">
+    <h1>ChatX Account</h1>
+    <form @submit="emailAuth">
+      <label for="email">Email:</label>
+      <input required type="email" name="email" placeholder="user@example.com" />
+      <label for="pass">Password:</label>
+      <input required type="password" name="pass" placeholder="P4$$W0RD!" />
+      <button>Sign In / Make Account</button>
+    </form>
+    <button @click="showForm = false">Cancel</button>
   </div>
 </template>
 
@@ -282,6 +333,26 @@ h1 {
 }
 a {
   text-decoration: none;
+}
+
+#form {
+  background:  #0f0f0fef;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#form label, #form input, #form button {
+  display: block;
+  margin: .1em;
+}
+#form button, #form h1 {
+  margin-top: 1em;
 }
 
 #messages {

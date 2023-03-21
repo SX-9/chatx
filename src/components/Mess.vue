@@ -57,7 +57,7 @@ const like = ref(() => {
   likes.value++;
   updateDoc(docId(likesRef, doc), {
     likes: likes.value,
-  });
+  }).catch(() => likes.value--);
 });
 </script>
 
