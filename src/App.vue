@@ -247,7 +247,10 @@ const typingStart = ref((e) => {
     </button>
     <h1 v-if="isAuth" id="username">{{ username }}</h1>
   </div>
-  <div v-if="typing && isAuth" id="typing" class="fadeBottom" doc="1">
+  <div v-if="typing && isAuth" class="typing fadeTop">
+    People Are Typing...
+  </div>
+  <div v-if="typing && isAuth" class="typing fadeBottom">
     People Are Typing...
   </div>
   <div id="messages" class="fadeLeft"></div>
@@ -331,12 +334,17 @@ a {
   width: 60%;
 }
 
-#typing {
+.typing {
   position: fixed;
-  bottom: 4.5em;
   width: 100%;
   background: #000000a2;
   padding: 0.5em;
+}
+.fadeTop.typing {
+  top: 4.5em;
+}
+.fadeBottom.typing {
+  bottom: 4.5em;
 }
 
 #bg {
