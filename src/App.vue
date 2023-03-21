@@ -59,11 +59,11 @@ const authToggle = ref(() => {
   } else {
     let method = prompt(`
 Select A Sign In Method:
-  1. Github
-  2. Google
-  3. Email
-Example: 1
-    `);
+
+1. Github
+2. Google
+3. Email
+    `, '3');
     let provider;
     if (method == 1) {
       provider = new GithubAuthProvider();
