@@ -191,7 +191,6 @@ const lockChat = ref(() => {
 
 const updateMsg = (snapshot) => {
   document.querySelector("#messages").innerHTML = "";
-  console.log(snapshot)
   snapshot.docs.reverse().forEach((doc) => {
     msgComponentCreate(
       doc.data().msg,
