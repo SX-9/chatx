@@ -108,12 +108,35 @@ ${error.message}
   showForm.value = false;
 });
 
+function checks(name) {
+  if (uid.value === ownerUid) return false;
+  
+  let stop = false;
+  swears.forEach((banned) => {
+    if (stop) return;
+    if (name.toLowerCase().includes(banned.toLowerCase())) stop = true;
+  });
+  if (stop) return true;
+  
+  return (name === "SX-9" || name === "You" || isASCII(name) || !name);
+}
+
+const changeName = ref(() => {
+  let name = prompt("Username:", username.value);
+  if (!confirm('Change Name?')) return;
+  updateProfile(auth.currentUser, {
+    displayName: checks(name) ? randomUsername(5) : name,
+  })
+    .then(() => window.location.reload())
+    .catch(console.error);
+});
+
 auth.onAuthStateChanged((user) => {
   if (user) {
     if (!user.displayName && !user.reloadUserInfo.screenInfo) {
       let name = prompt("Username:");
       updateProfile(auth.currentUser, {
-        displayName: name !== "SX-9" || name !== "You" || !isASCII(name) || !name ? name : randomUsername(5),
+        displayName: !checks(name) ? name : randomUsername(5),
       })
         .then(() => window.location.reload())
         .catch(console.error);
@@ -317,7 +340,7 @@ const typingStart = ref((e) => {
       <span v-if="isAuth">Log Out</span>
       <span v-else>Log In</span>
     </button>
-    <h1 v-if="isAuth" id="username">{{ username }}</h1>
+    <h1 v-if="isAuth" id="username" @click="changeName">{{ username }}</h1>
   </div>
   <div v-if="typing && isAuth" class="typing fadeTop">People Are Typing...</div>
   <div v-if="typing && isAuth" class="typing fadeBottom">
