@@ -23,6 +23,7 @@ import {
   query,
   limit,
   doc,
+  disableNetwork,
 } from "firebase/firestore";
 import { v5 as uuid } from "uuid";
 
@@ -40,7 +41,8 @@ initializeApp({
 const db = getFirestore();
 const msgRefs = collection(db, "messages");
 const likesRef = collection(db, "likes");
-const typingRef = doc(collection(db, "typing"), "active");
+const typingRef = doc(collection(db, "vars"), "typing");
+const lockedRef = doc(collection(db, "vars"), "locked");
 
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
@@ -57,13 +59,16 @@ const authToggle = ref(() => {
   if (isAuth.value) {
     signOut(auth);
   } else {
-    let method = prompt(`
+    let method = prompt(
+      `
 Select A Sign In Method:
 
 1. Github
 2. Google
 3. Email
-    `, '3');
+    `,
+      "3"
+    );
     let provider;
     if (method == 1) {
       provider = new GithubAuthProvider();
@@ -80,8 +85,8 @@ Select A Sign In Method:
   }
 });
 const emailAuth = ref((e) => {
-  let email = document.querySelector('input[name=email]').value;
-  let pass = document.querySelector('input[name=pass]').value
+  let email = document.querySelector("input[name=email]").value;
+  let pass = document.querySelector("input[name=pass]").value;
 
   e.preventDefault();
   signInWithEmailAndPassword(auth, email, pass)
@@ -89,14 +94,9 @@ const emailAuth = ref((e) => {
       const user = userCredential.user;
     })
     .catch((error) => {
-      if (error.code === 'auth/user-not-found') {
-        if (confirm('Account Not Found, Create A New One?')) {
-          createUserWithEmailAndPassword(auth, email, pass)
-            .then((user) => {
-              updateProfile(auth.currentUser, {
-                displayName: prompt('Username:') || uuid(),
-              }).catch(console.error);
-            });
+      if (error.code === "auth/user-not-found") {
+        if (confirm("Account Not Found, Create A New One?")) {
+          createUserWithEmailAndPassword(auth, email, pass);
         }
       }
       console.error(`
@@ -109,8 +109,15 @@ ${error.message}
 });
 
 auth.onAuthStateChanged((user) => {
-  console.log(user)
   if (user) {
+    if (!user.displayName && !user.reloadUserInfo.screenInfo) {
+      let name = prompt("Username:");
+      updateProfile(auth.currentUser, {
+        displayName: name !== "SX-9" || !name ? name : randomUsername(5),
+      })
+        .then(() => window.location.reload())
+        .catch(console.error);
+    }
     username.value = user.reloadUserInfo.screenName || user.displayName;
     isAuth.value = true;
     uid.value = user.uid;
@@ -134,6 +141,15 @@ We Have A Ton Of Features:
     uid.value = "???";
   }
 });
+
+function randomUsername(length) {
+  let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let randomString;
+  for (let i = 0; i < length; i++) {
+    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return "User" + randomString.replace("undefined", "");
+}
 
 function isASCII(str, extended) {
   return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
@@ -159,6 +175,14 @@ function getRandomColor() {
   }
   return color;
 }
+
+const locked = ref(false);
+onSnapshot(lockedRef, async (e) => {
+  if (!e.data().active) return;
+  alert('Error: Unable To Reach ChatX Servers, This Is Usually Due To It Being Locked.');
+  await disableNetwork(db);
+  locked.value = e.data().active
+})
 
 const updateMsg = (snapshot) => {
   document.querySelector("#messages").innerHTML = "";
@@ -298,7 +322,7 @@ const typingStart = ref((e) => {
     Chat Is Limited To 15 Messages<br />
     Database Location: Asia/Jakarta<br />
   </p>
-  <div id="inputs" v-if="isAuth" class="fadeBottom">
+  <div id="inputs" v-if="isAuth && !locked" class="fadeBottom">
     <button @click="imgCreate">📷</button>
     <input
       autofocus
@@ -313,7 +337,12 @@ const typingStart = ref((e) => {
     <h1>ChatX Account</h1>
     <form @submit="emailAuth">
       <label for="email">Email:</label>
-      <input required type="email" name="email" placeholder="user@example.com" />
+      <input
+        required
+        type="email"
+        name="email"
+        placeholder="user@example.com"
+      />
       <label for="pass">Password:</label>
       <input required type="password" name="pass" placeholder="P4$$W0RD!" />
       <button>Sign In / Make Account</button>
@@ -336,7 +365,7 @@ a {
 }
 
 #form {
-  background:  #0f0f0fef;
+  background: #0f0f0fef;
   position: fixed;
   top: 0;
   left: 0;
@@ -347,11 +376,14 @@ a {
   justify-content: center;
   align-items: center;
 }
-#form label, #form input, #form button {
+#form label,
+#form input,
+#form button {
   display: block;
-  margin: .1em;
+  margin: 0.1em;
 }
-#form button, #form h1 {
+#form button,
+#form h1 {
   margin-top: 1em;
 }
 

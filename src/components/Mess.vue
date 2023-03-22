@@ -23,7 +23,7 @@ const msgs = collection(getFirestore(), "messages");
 const likesRef = collection(getFirestore(), "likes");
 const likes = ref(0);
 
-getDoc(docId(likesRef, props.doc))
+if (props.doc) getDoc(docId(likesRef, props.doc))
   .then((d) => {
     if (d.exists()) return (likes.value = d.data().likes);
     setDoc(docId(likesRef, props.doc), {
