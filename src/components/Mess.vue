@@ -64,13 +64,14 @@ const like = ref(() => {
 <template>
   <div class="container">
     <div v-if="user === 'SX-9'" class="shape owner">|</div>
+    <div v-else-if="user === 'You'" class="shape you">|</div>
     <div v-else class="shape">|</div>
     <h2 class="title">
       {{ user }}
       <span class="time"
-        >{{ new Date(time).getMonth() }}/{{ new Date(time).getDate() }}/{{
-          new Date(time).getFullYear()
-        }}</span
+        >{{ new Date(time).getMonth() }}/{{ new Date(time).getDate() }}/{{ new
+        Date(time).getFullYear() }} {{ new Date(time).getHours() }}:{{ new
+        Date(time).getMinutes() }}</span
       >
     </h2>
     <Markdown class="msg" v-if="msg" :source="msg" />
@@ -104,6 +105,9 @@ const like = ref(() => {
 }
 .shape.owner {
   color: yellow;
+}
+.shape.you {
+  color: lime;
 }
 .title {
   grid-area: title;

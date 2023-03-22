@@ -113,7 +113,7 @@ auth.onAuthStateChanged((user) => {
     if (!user.displayName && !user.reloadUserInfo.screenInfo) {
       let name = prompt("Username:");
       updateProfile(auth.currentUser, {
-        displayName: name !== "SX-9" || !name ? name : randomUsername(5),
+        displayName: name !== "SX-9" || name !== "You" || !isASCII(name) || !name ? name : randomUsername(5),
       })
         .then(() => window.location.reload())
         .catch(console.error);
@@ -191,7 +191,8 @@ const lockChat = ref(() => {
 
 const updateMsg = (snapshot) => {
   document.querySelector("#messages").innerHTML = "";
-  snapshot.forEach((doc) => {
+  console.log(snapshot)
+  snapshot.docs.reverse().forEach((doc) => {
     msgComponentCreate(
       doc.data().msg,
       doc.data().author === username.value ? "You" : doc.data().author,
@@ -204,6 +205,7 @@ const updateMsg = (snapshot) => {
   document
     .querySelectorAll("h2")
     .forEach((el) => (el.style.color = getRandomColor()));
+  window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
 };
 onSnapshot(query(msgRefs, orderBy("created", "desc"), limit(15)), updateMsg);
 
@@ -322,14 +324,14 @@ const typingStart = ref((e) => {
   <div v-if="typing && isAuth" class="typing fadeBottom">
     People Are Typing...
   </div>
-  <div id="messages" class="fadeLeft"></div>
   <p id="end" class="fadeLeft">
     Chat Is Limited To 15 Messages<br />
     Database Location: Asia/Jakarta<br />
-    <a v-if="uid === ownerUid" @click="lockChat"><strong><br />Click <span
+    <a v-if="uid === ownerUid" @click="lockChat"><strong><br />Click To <span
     v-if="locked">Un</span>Lock
     Chat</strong><br /></a>
   </p>
+  <div id="messages" class="fadeLeft"></div>
   <div id="inputs" v-if="(isAuth && !locked) || uid === ownerUid" class="fadeBottom">
     <button @click="imgCreate">📷</button>
     <input
@@ -396,11 +398,11 @@ a {
 }
 
 #messages {
-  margin-top: 5em;
+  padding-bottom: 4em;
 }
 #end {
   text-align: center;
-  padding-bottom: 4em;
+  padding-top: 5em;
 }
 
 #inputs,
