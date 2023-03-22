@@ -46,10 +46,6 @@ const lockedRef = doc(collection(db, "vars"), "locked");
 
 const auth = getAuth();
 const ownerUid = "BRzxfCztjaQN6J2CKgYdp62ggnF2";
-const actionCodeSettings = {
-  url: "https://vf-chat-x.web.app",
-  dynamicLinkDomain: "vf-chat-x.web.app",
-};
 
 const isAuth = ref(false);
 const showForm = ref(false);
@@ -203,7 +199,7 @@ const locked = ref(false);
 onSnapshot(lockedRef, async (e) => {
   locked.value = e.data().active
   if (!e.data().active || uid.value === ownerUid) return;
-  alert('Error: Unable To Reach ChatX Servers, This Is Usually Due To It Being Locked.');
+  alert('Error: Client Disconnected From ChatX Servers, This Is Usually Due To It Being Locked.');
   await disableNetwork(db);
 });
 
