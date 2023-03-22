@@ -178,11 +178,16 @@ function getRandomColor() {
 
 const locked = ref(false);
 onSnapshot(lockedRef, async (e) => {
-  if (!e.data().active) return;
+  locked.value = e.data().active
+  if (!e.data().active || uid.value === ownerUid) return;
   alert('Error: Unable To Reach ChatX Servers, This Is Usually Due To It Being Locked.');
   await disableNetwork(db);
-  locked.value = e.data().active
-})
+});
+
+const lockChat = ref(() => {
+  if (confirm('Lock The Chat? This Will Disconnect All Clients!'))
+  updateDoc(lockedRef, { active: !locked.value });
+});
 
 const updateMsg = (snapshot) => {
   document.querySelector("#messages").innerHTML = "";
@@ -321,8 +326,11 @@ const typingStart = ref((e) => {
   <p id="end" class="fadeLeft">
     Chat Is Limited To 15 Messages<br />
     Database Location: Asia/Jakarta<br />
+    <a v-if="uid === ownerUid" @click="lockChat"><strong><br />Click <span
+    v-if="locked">Un</span>Lock
+    Chat</strong><br /></a>
   </p>
-  <div id="inputs" v-if="isAuth && !locked" class="fadeBottom">
+  <div id="inputs" v-if="(isAuth && !locked) || uid === ownerUid" class="fadeBottom">
     <button @click="imgCreate">📷</button>
     <input
       autofocus
