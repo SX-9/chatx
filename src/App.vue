@@ -114,14 +114,14 @@ function checks(name) {
   });
   if (stop) return true;
   
-  return (name === "SX-9" || name === "You" || isASCII(name) || !name);
+  return (name === "SX-9" || name === "You" || !isASCII(name) || name === "");
 }
 
 const changeName = ref(() => {
   let name = prompt("Username:", username.value);
   if (!confirm('Change Name?')) return;
   updateProfile(auth.currentUser, {
-    displayName: checks(name) ? randomUsername(5) : name,
+    displayName: !checks(name) ? name : randomUsername(5),
   })
     .then(() => window.location.reload())
     .catch(console.error);
