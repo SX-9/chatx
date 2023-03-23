@@ -336,7 +336,7 @@ const typingStart = ref((e) => {
       <span v-if="isAuth">Log Out</span>
       <span v-else>Log In</span>
     </button>
-    <h1 v-if="isAuth" id="username" @click="changeName">{{ username }}</h1>
+    <h1 v-if="isAuth" id="username"><a @click="changeName">{{ username }}</a></h1>
   </div>
   <div v-if="typing && isAuth" class="typing fadeTop">People Are Typing...</div>
   <div v-if="typing && isAuth" class="typing fadeBottom">
