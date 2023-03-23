@@ -106,20 +106,20 @@ ${error.message}
 
 function checks(name) {
   if (uid.value === ownerUid) return false;
-  
+
   let stop = false;
   swears.forEach((banned) => {
     if (stop) return;
     if (name.toLowerCase().includes(banned.toLowerCase())) stop = true;
   });
   if (stop) return true;
-  
-  return (name === "SX-9" || name === "You" || !isASCII(name) || name === "");
+
+  return name === "SX-9" || name === "You" || !isASCII(name) || name === "";
 }
 
 const changeName = ref(() => {
   let name = prompt("Username:", username.value);
-  if (!confirm('Change Name?')) return;
+  if (!confirm("Change Name?")) return;
   updateProfile(auth.currentUser, {
     displayName: !checks(name) ? name : randomUsername(5),
   })
@@ -197,15 +197,17 @@ function getRandomColor() {
 
 const locked = ref(false);
 onSnapshot(lockedRef, async (e) => {
-  locked.value = e.data().active
+  locked.value = e.data().active;
   if (!e.data().active || uid.value === ownerUid) return;
-  alert('Error: Client Disconnected From ChatX Servers, This Is Usually Due To It Being Locked.');
+  alert(
+    "Error: Client Disconnected From ChatX Servers, This Is Usually Due To It Being Locked."
+  );
   await disableNetwork(db);
 });
 
 const lockChat = ref(() => {
-  if (confirm('Lock The Chat? This Will Disconnect All Clients!'))
-  updateDoc(lockedRef, { active: !locked.value });
+  if (confirm("Lock The Chat? This Will Disconnect All Clients!"))
+    updateDoc(lockedRef, { active: !locked.value });
 });
 
 const updateMsg = (snapshot) => {
@@ -223,7 +225,10 @@ const updateMsg = (snapshot) => {
   document
     .querySelectorAll("h2")
     .forEach((el) => (el.style.color = getRandomColor()));
-  window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+  window.scrollTo(
+    0,
+    document.body.scrollHeight || document.documentElement.scrollHeight
+  );
 };
 onSnapshot(query(msgRefs, orderBy("created", "desc"), limit(15)), updateMsg);
 
@@ -336,7 +341,9 @@ const typingStart = ref((e) => {
       <span v-if="isAuth">Log Out</span>
       <span v-else>Log In</span>
     </button>
-    <h1 v-if="isAuth" id="username"><a @click="changeName">{{ username }}</a></h1>
+    <h1 v-if="isAuth" id="username">
+      <a @click="changeName">{{ username }}</a>
+    </h1>
   </div>
   <div v-if="typing && isAuth" class="typing fadeTop">People Are Typing...</div>
   <div v-if="typing && isAuth" class="typing fadeBottom">
@@ -345,12 +352,17 @@ const typingStart = ref((e) => {
   <p id="end" class="fadeLeft">
     Chat Is Limited To 15 Messages<br />
     Database Location: Asia/Jakarta<br />
-    <a v-if="uid === ownerUid" @click="lockChat"><strong><br />Click To <span
-    v-if="locked">Un</span>Lock
-    Chat</strong><br /></a>
+    <a v-if="uid === ownerUid" @click="lockChat"
+      ><strong><br />Click To <span v-if="locked">Un</span>Lock Chat</strong
+      ><br
+    /></a>
   </p>
   <div id="messages" class="fadeLeft"></div>
-  <div id="inputs" v-if="(isAuth && !locked) || uid === ownerUid" class="fadeBottom">
+  <div
+    id="inputs"
+    v-if="(isAuth && !locked) || uid === ownerUid"
+    class="fadeBottom"
+  >
     <button @click="imgCreate">📷</button>
     <input
       autofocus

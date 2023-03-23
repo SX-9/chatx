@@ -23,15 +23,16 @@ const msgs = collection(getFirestore(), "messages");
 const likesRef = collection(getFirestore(), "likes");
 const likes = ref(0);
 
-if (props.doc) getDoc(docId(likesRef, props.doc))
-  .then((d) => {
-    if (d.exists()) return (likes.value = d.data().likes);
-    setDoc(docId(likesRef, props.doc), {
-      likes: 0,
-    });
-    likes.value = 0;
-  })
-  .catch(console.error);
+if (props.doc)
+  getDoc(docId(likesRef, props.doc))
+    .then((d) => {
+      if (d.exists()) return (likes.value = d.data().likes);
+      setDoc(docId(likesRef, props.doc), {
+        likes: 0,
+      });
+      likes.value = 0;
+    })
+    .catch(console.error);
 
 const edit = ref(() => {
   let { msg, doc, user, time } = props;
@@ -69,9 +70,10 @@ const like = ref(() => {
     <h2 class="title">
       {{ user }}
       <span class="time"
-        >{{ new Date(time).getMonth() }}/{{ new Date(time).getDate() }}/{{ new
-        Date(time).getFullYear() }} {{ new Date(time).getHours() }}:{{ new
-        Date(time).getMinutes() }}</span
+        >{{ new Date(time).getMonth() }}/{{ new Date(time).getDate() }}/{{
+          new Date(time).getFullYear()
+        }}
+        {{ new Date(time).getHours() }}:{{ new Date(time).getMinutes() }}</span
       >
     </h2>
     <Markdown class="msg" v-if="msg" :source="msg" />
@@ -81,7 +83,13 @@ const like = ref(() => {
         <a id="edit" @click="edit()">🖊 Edit</a>
         <a id="rm" @click="rm()">🗑 Delete</a>
       </span>
-      <a @click="like()" id="likes">👍 {{ new Intl.NumberFormat('en', { notation: 'compact' }).format(likes) || 0 }}</a>
+      <a @click="like()" id="likes"
+        >👍
+        {{
+          new Intl.NumberFormat("en", { notation: "compact" }).format(likes) ||
+          0
+        }}</a
+      >
     </p>
   </div>
 </template>
