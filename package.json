@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@firebase/app": "^0.9.3",
+    "@firebase/app": "^0.9.11",
     "@firebase/database": "^0.14.3",
     "badwords-list": "^1.0.0",
     "firebase": "^9.17.2",
