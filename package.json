@@ -11,7 +11,7 @@
     "@firebase/app": "^0.9.3",
     "@firebase/database": "^0.14.3",
     "badwords-list": "^1.0.0",
-    "firebase": "^9.17.2",
+    "firebase": "^10.2.0",
     "register-service-worker": "^1.7.2",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
